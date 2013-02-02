@@ -1,0 +1,35 @@
+#!/usr/bin/env node
+
+// vendor
+var colors = require('colors');
+
+// local
+var weaklink = require('../');
+
+function print_deps(info, level) {
+    level = level || 0;
+
+    if (!info.is_floating && !info.contains_floating) {
+        return;
+    }
+
+    var arr = new Array(level + 1);
+    var out = arr.join('│ ') + '├── ' + info.name + ' ' + info.version;
+
+    if (info.is_floating) {
+        console.log(out.red);
+    }
+    else {
+        console.log(out);
+    }
+
+    info.deps.forEach(function(dep) {
+        print_deps(dep, level + 1);
+    });
+}
+
+var proj_path = process.argv[2];
+var info = weaklink(proj_path);
+print_deps(info);
+
+// vim: ft=javascript

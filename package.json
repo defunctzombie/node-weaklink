@@ -1,0 +1,15 @@
+{
+  "name": "weaklink",
+  "version": "0.0.0",
+  "description": "hunt down and eradicate floating dependencies",
+  "dependencies": {
+    "colors": "0.6.0-1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/shtylman/node-weaklink.git"
+  },
+  "bin": {
+    "weaklink": "./bin/weaklink"
+  }
+}
