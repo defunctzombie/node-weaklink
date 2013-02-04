@@ -2,34 +2,39 @@
 
 // vendor
 var colors = require('colors');
+var treeify = require('treeify');
 
 // local
 var weaklink = require('../');
 
-function print_deps(info, level) {
-    level = level || 0;
-
-    if (!info.is_floating && !info.contains_floating) {
-        return;
-    }
-
-    var arr = new Array(level + 1);
-    var out = arr.join('│ ') + '├── ' + info.name + ' ' + info.version;
-
-    if (info.is_floating) {
-        console.log(out.red);
-    }
-    else {
-        console.log(out);
-    }
+// convert dependency info into treeifyable input
+function convert(info) {
+    var res = {}
 
     info.deps.forEach(function(dep) {
-        print_deps(dep, level + 1);
+        var name = dep.name + ' ' + dep.version;
+
+        switch (dep.type) {
+        case 'floating':
+            name = name.red;
+            break;
+        case 'unknown':
+            name = name.yellow;
+            break;
+        }
+
+        if (dep.is_floating || dep.contains_floating) {
+            res[name] = convert(dep);
+        }
     });
+
+    return res;
 }
 
 var proj_path = process.argv[2];
 var info = weaklink(proj_path);
-print_deps(info);
+
+var tree = treeify.asTree(convert(info));
+console.log(tree);
 
 // vim: ft=javascript

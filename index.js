@@ -2,24 +2,35 @@
 var fs = require('fs');
 var path = require('path');
 
-// return true if the dependency is not pinned
-function is_floating(dep) {
+// return 'pinned' | 'unknown' | 'floating'
+function dep_type(dep) {
+
+    // ~N.N.N are considered unknown and still pose a problem
+    if (/^~\d+.\d+.\d+/.test(dep)) {
+        return 'unknown';
+    }
+
     // exact N.N.N
     if (/^\d+.\d+.\d+/.test(dep)) {
-        return false;
+        return 'pinned';
     }
 
-    //longform git url with trailing commit id or tag
+    // longform git url with trailing commit id or tag
     if (/^git:\/\/(.*)#(.+)$/.test(dep)) {
-        return false;
+        return 'unknown';
     }
 
-    // finally, shortform github user/repo#hash
+    // longform git url with no trailing commit
+    if (/^git:\/\/(.*)#(.+)$/.test(dep)) {
+        return 'floating';
+    }
+
+    // shortform github user/repo#hash
     if (/^[\w-]+\/[\w-.]+#(.+)$/.test(dep)) {
-        return false;
+        return 'unknown';
     }
 
-    return true;
+    return 'floating';
 }
 
 function check_path(proj_path) {
@@ -50,7 +61,9 @@ function check_path(proj_path) {
         res.deps = res.deps || [];
 
         dependencies.push(res);
-        if (is_floating(dep)) {
+        var type = dep_type(dep);
+        res.type = type;
+        if (type !== 'pinned') {
             res.is_floating = true;
             contains_floating = true;
         }
