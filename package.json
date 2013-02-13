@@ -1,6 +1,6 @@
 {
   "name": "weaklink",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "hunt down and eradicate floating dependencies",
   "dependencies": {
     "colors": "0.6.0-1",
